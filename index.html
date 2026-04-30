@@ -6,6 +6,47 @@
 <title>Enqweezy</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet">
 <style>
+  /* ── SCROLL ENTRY ANIMATIONS ── */
+.card {
+  opacity: 0;
+  transform: translateY(30px) scale(0.98);
+  animation: cardIn 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+}
+
+@keyframes cardIn {
+  to { opacity: 1; transform: none; }
+}
+
+/* ── MOBILE FIX ── */
+@media (max-width: 768px) {
+  .card {
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    gap: 18px;
+  }
+
+  .tabs {
+    justify-content: center;
+  }
+
+  .device-grid,
+  .socials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body {
+    cursor: auto;
+  }
+
+  #cursor, #cursor-ring {
+    display: none;
+  }
+}
 :root {
   --bg: #04070f;
   --bg2: #080d1a;
