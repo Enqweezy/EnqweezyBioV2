@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enqweezy</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #04070f;
+  --bg2: #080d1a;
+  --accent: #6ef0d8;
+  --accent2: #b06ef0;
+  --accent3: #f06e9b;
+  --glass: rgba(255,255,255,0.04);
+  --glass2: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(110,240,216,0.25);
+  --text: rgba(255,255,255,0.92);
+  --text2: rgba(255,255,255,0.5);
+  --text3: rgba(255,255,255,0.25);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cursor {
+  position: fixed;
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s, width 0.2s, height 0.2s, background 0.2s;
+  mix-blend-mode: difference;
+}
+#cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(110,240,216,0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), width 0.25s, height 0.25s, border-color 0.2s;
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring {
+  width: 52px; height: 52px;
+  border-color: rgba(110,240,216,0.9);
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.028;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ── AURORA BG ── */
+.aurora {
+  position: fixed; inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  animation: aurora-drift 18s ease-in-out infinite alternate;
+}
+.aurora-blob:nth-child(1) {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #6ef0d8, transparent 70%);
+  top: -200px; left: -100px;
+  animation-duration: 20s;
+}
+.aurora-blob:nth-child(2) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #b06ef0, transparent 70%);
+  top: 30%; right: -150px;
+  animation-duration: 24s;
+  animation-delay: -8s;
+}
+.aurora-blob:nth-child(3) {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, #f06e9b, transparent 70%);
+  bottom: -100px; left: 30%;
+  animation-duration: 16s;
+  animation-delay: -4s;
+}
+@keyframes aurora-drift {
+  0%   { transform: translate(0,0) scale(1); }
+  50%  { transform: translate(60px,-80px) scale(1.12); }
+  100% { transform: translate(-40px,60px) scale(0.95); }
+}
+
+/* ── STAR FIELD ── */
+.stars {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── PARALLAX GRID ── */
+.grid-overlay {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(110,240,216,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110,240,216,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform-origin: center;
+  transition: transform 0.1s linear;
+}
+
+/* ── LANG SWITCH ── */
+.lang {
+  position: fixed;
+  top: 24px; right: 24px;
+  display: flex;
+  gap: 4px;
+  background: var(--glass2);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 5px;
+  z-index: 100;
+}
+.lang button {
+  background: none;
+  border: none;
+  color: var(--text2);
+  padding: 6px 14px;
+  border-radius: 100px;
+  cursor: none;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.lang button.active {
+  background: var(--glass2);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border2);
+}
+
+/* ── MAIN LAYOUT ── */
+.page {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 820px;
+  background: var(--glass);
+  backdrop-filter: blur(40px) saturate(1.6);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  padding: 52px 52px 44px;
+  box-shadow:
+    0 0 0 1px rgba(110,240,216,0.06),
+    0 60px 120px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  transform-style: preserve-3d;
+  transition: transform 0.1s linear;
+}
+
+/* ── HERO AREA ── */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  margin-bottom: 48px;
+}
+
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.avatar-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #6ef0d8, #b06ef0, #f06e9b, #6ef0d8
+  );
+  animation: spin 6s linear infinite;
+  z-index: 0;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.avatar-ring-mask {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: var(--bg);
+  z-index: 1;
+}
+.avatar {
+  position: relative;
+  z-index: 2;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.avatar-placeholder {
+  position: relative;
+  z-index: 2;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a2a3a, #0d1825);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+
+.hero-text { flex: 1; }
+.nick {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #6ef0d8 0%, #b06ef0 45%, #f06e9b 80%, #6ef0d8 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 6s linear infinite;
+  margin-bottom: 10px;
+}
+@keyframes shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+.tagline {
+  font-size: 14px;
+  color: var(--text3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tagline::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--accent);
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.badge {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+.badge-teal {
+  background: rgba(110,240,216,0.08);
+  border: 1px solid rgba(110,240,216,0.2);
+  color: #6ef0d8;
+}
+.badge-purple {
+  background: rgba(176,110,240,0.08);
+  border: 1px solid rgba(176,110,240,0.2);
+  color: #c99ef7;
+}
+.badge-pink {
+  background: rgba(240,110,155,0.08);
+  border: 1px solid rgba(240,110,155,0.2);
+  color: #f09ec0;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), rgba(110,240,216,0.2), var(--border), transparent);
+  margin: 0 0 36px;
+}
+
+/* ── NAV TABS ── */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.tab {
+  position: relative;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 10px 22px;
+  border-radius: 12px;
+  cursor: none;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+  overflow: hidden;
+}
+.tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(110,240,216,0.08), rgba(176,110,240,0.06));
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.tab:hover::before { opacity: 1; }
+.tab:hover {
+  border-color: var(--border2);
+  color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(110,240,216,0.08);
+}
+.tab.active {
+  background: rgba(110,240,216,0.08);
+  border-color: rgba(110,240,216,0.35);
+  color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(110,240,216,0.12), 0 8px 30px rgba(110,240,216,0.1);
+}
+.tab .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 8px;
+  vertical-align: middle;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s;
+}
+.tab.active .dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── PANELS ── */
+.panel {
+  display: none;
+  animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+.panel.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── ABOUT PANEL ── */
+.about-text {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.8;
+  font-weight: 300;
+}
+.about-text strong { color: var(--text); font-weight: 400; }
+.about-text .highlight {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+.stat {
+  background: var(--glass2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  transition: all 0.25s;
+}
+.stat:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── DEVICES PANEL ── */
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+.device-card {
+  position: relative;
+  background: var(--glass2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px 22px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.device-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(110,240,216,0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.device-card:hover::before { opacity: 1; }
+.device-card:hover {
+  border-color: rgba(110,240,216,0.2);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(110,240,216,0.08);
+}
+.device-icon {
+  font-size: 24px;
+  margin-bottom: 12px;
+  display: block;
+}
+.device-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.device-spec {
+  font-size: 13px;
+  color: var(--text3);
+  font-weight: 300;
+  font-style: italic;
+}
+.device-tag {
+  position: absolute;
+  top: 16px; right: 16px;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: rgba(110,240,216,0.07);
+  border: 1px solid rgba(110,240,216,0.15);
+  color: rgba(110,240,216,0.6);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── SOCIALS PANEL ── */
+.socials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.social-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--glass2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  color: var(--text);
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.social-link::after {
+  content: '↗';
+  position: absolute;
+  right: 18px;
+  font-size: 14px;
+  color: var(--text3);
+  transition: all 0.25s;
+}
+.social-link:hover::after {
+  color: var(--accent);
+  transform: translate(2px,-2px);
+}
+.social-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+}
+.social-link.tg { --glow: rgba(0,136,204,0.15); }
+.social-link.tg:hover { border-color: rgba(0,136,204,0.35); box-shadow: 0 16px 40px var(--glow); }
+.social-link.tt:hover { border-color: rgba(255,255,255,0.25); box-shadow: 0 16px 40px rgba(255,255,255,0.04); }
+.social-link.don { --glow: rgba(110,240,216,0.15); }
+.social-link.don:hover { border-color: rgba(110,240,216,0.35); box-shadow: 0 16px 40px var(--glow); }
+
+.social-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+.social-icon.tg-bg { background: rgba(0,136,204,0.12); }
+.social-icon.tt-bg { background: rgba(255,255,255,0.06); }
+.social-icon.don-bg { background: rgba(110,240,216,0.08); }
+
+.social-label { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; }
+.social-sub { font-size: 12px; color: var(--text3); font-weight: 300; }
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: gap;
+}
+.footer-text {
+  font-size: 13px;
+  color: var(--text3);
+  letter-spacing: 0.04em;
+}
+.footer-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--accent);
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.6); }
+}
+
+/* ── SCROLL ENTRY ANIMATIONS ── */
+.card { opacity: 0; transform: translateY(30px) scale(0.98); animation: cardIn 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s forwards; }
+@keyframes cardIn {
+  to { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<div class="aurora">
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+  <div class="aurora-blob"></div>
+</div>
+
+<canvas class="stars" id="stars"></canvas>
+<div class="grid-overlay" id="grid"></div>
+
+<div class="lang">
+  <button class="active" id="btn-en">EN</button>
+  <button id="btn-ru">RU</button>
+</div>
+
+<div class="page">
+  <div class="card" id="card">
+
+    <div class="hero">
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <div class="avatar-ring-mask"></div>
+        <img src="avatar.png" class="avatar" alt="Avatar">
+      </div>
+      <div class="hero-text">
+        <div class="nick">@Enqweezy</div>
+        <div class="tagline" id="tagline">17 · ENFJ-A · Tech Enthusiast</div>
+        <div class="badges">
+          <span class="badge badge-teal" id="badge1">📷 Photography</span>
+          <span class="badge badge-purple" id="badge2">💻 Coding</span>
+          <span class="badge badge-pink" id="badge3">🎵 Music</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-panel="about"><span class="dot"></span><span id="t1">About me</span></button>
+      <button class="tab" data-panel="devices"><span class="dot"></span><span id="t2">Devices</span></button>
+      <button class="tab" data-panel="socials"><span class="dot"></span><span id="t3">Socials</span></button>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="panel active" id="panel-about">
+      <p class="about-text" id="about-body"></p>
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-value">17</div>
+          <div class="stat-label" id="s1">Years old</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">ENFJ</div>
+          <div class="stat-label" id="s2">Personality</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">Tech Reseller</div>
+          <div class="stat-label" id="s3">Hobbies</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">∞</div>
+          <div class="stat-label" id="s4">Curiosity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEVICES -->
+    <div class="panel" id="panel-devices">
+      <div class="device-grid" id="device-grid"></div>
+    </div>
+
+    <!-- SOCIALS -->
+    <div class="panel" id="panel-socials">
+      <div class="socials-grid">
+        <a href="https://t.me/send?start=IVk8tTqV9SLj" target="_blank" class="social-link don">
+          <div class="social-icon don-bg">💚</div>
+          <div>
+            <div class="social-label" id="don-label">Donations</div>
+            <div class="social-sub">Telegram Pay</div>
+          </div>
+        </a>
+        <a href="https://t.me/bolshayajirnayajopa" target="_blank" class="social-link tg">
+          <div class="social-icon tg-bg">✈️</div>
+          <div>
+            <div class="social-label">Telegram</div>
+            <div class="social-sub">@enqweezy</div>
+          </div>
+        </a>
+        <a href="https://www.tiktok.com/@enqweezy1337" target="_blank" class="social-link tt">
+          <div class="social-icon tt-bg">🎵</div>
+          <div>
+            <div class="social-label">TikTok</div>
+            <div class="social-sub">@enqweezy1337</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="footer-text" id="footer-text">End of Enqweezy biography</span>
+      <div class="footer-dot"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── CURSOR ── */
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animCursor() {
+  cur.style.left = mx + 'px';
+  cur.style.top  = my + 'px';
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(animCursor);
+}
+animCursor();
+
+/* ── STAR CANVAS ── */
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function initStars() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = Array.from({length: 180}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.2 + 0.2,
+    o: Math.random() * 0.6 + 0.1,
+    s: Math.random() * 0.4 + 0.1,
+    p: Math.random() * Math.PI * 2
+  }));
+}
+function drawStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.p += s.s * 0.01;
+    const o = s.o * (0.6 + 0.4 * Math.sin(s.p));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(255,255,255,${o})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+window.addEventListener('resize', initStars);
+initStars(); drawStars();
+
+/* ── PARALLAX ── */
+const grid = document.getElementById('grid');
+const card = document.getElementById('card');
+document.addEventListener('mousemove', e => {
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  const dx = (e.clientX - cx) / cx, dy = (e.clientY - cy) / cy;
+  grid.style.transform = `translate(${dx*14}px, ${dy*14}px)`;
+  card.style.transform = `perspective(1200px) rotateY(${dx*3}deg) rotateX(${-dy*2}deg)`;
+});
+document.addEventListener('mouseleave', () => {
+  grid.style.transform = '';
+  card.style.transform = '';
+});
+
+/* ── CONTENT DATA ── */
+const data = {
+  en: {
+    tagline: '17 · ENFJ-A · Tech Enthusiast',
+    b1: '📷 Photography', b2: '💻 Coding', b3: '🎵 Music',
+    tabs: ['About me', 'Devices', 'Socials'],
+    about: `I'm <strong>curious and practical</strong>, always exploring technology and figuring out how things work. Born <span class="highlight">January 11</span>, I approach everything with an engineer's mindset — breaking it down, understanding it, building it better.\n\nI'm into photography, music, electronics, computers, coding, and I'm a tech reseller. <span class="highlight">Friendly but focused</span>, I enjoy meaningful conversations and learning new things every day.`,
+    stats: ['Years old', 'Personality', 'Hobbies', 'Energy'],
+    devices: [
+      { icon: '🖥️', name: 'Asus ROG Strix G17', spec: 'i7 10875H · RTX 2060', tag: 'Main rig' },
+      { icon: '📱', name: 'Samsung Galaxy S24 Ultra', spec: 'Snapdragon 8 Gen 3', tag: 'Main phone' },
+      { icon: '🎧', name: 'Sony WH-1000XM4', spec: 'Headphones', tag: 'Audio' },
+      { icon: '📱', name: 'Samsung Galaxy S7 Edge', spec: 'Exynos 8890', tag: 'Secondary phone' },
+    ],
+    don: 'Donations',
+    footer: 'Built by Enqweezy',
+  },
+  ru: {
+    tagline: '17 лет · ENFJ-A · Энтузиаст',
+    b1: '📷 Фото', b2: '💻 Код', b3: '🎵 Музыка',
+    tabs: ['Обо мне', 'Девайсы', 'Соцсети'],
+    about: `Я <strong>любознательный и практичный</strong>, постоянно изучаю технологии и разбираюсь, как всё устроено. Родился <span class="highlight">11 января</span> — подхожу ко всему с мышлением инженера: разобрать, понять, сделать лучше.\n\nУвлекаюсь фотографией, музыкой, электроникой, компьютерами, программированием и занимаюсь перепродажей техники. <span class="highlight">Дружелюбный, но сосредоточенный</span> — люблю содержательные разговоры и каждый день узнаю что-то новое.`,
+    stats: ['Лет', 'Тип личности', 'Увлечения', 'Энергия'],
+    devices: [
+      { icon: '🖥️', name: 'Asus ROG Strix G17', spec: 'i7 10875H · RTX 2060', tag: 'Основной ПК' },
+      { icon: '📱', name: 'Samsung Galaxy S24 Ultra', spec: 'Snapdragon 8 Gen 3', tag: 'Основная мобила' },
+      { icon: '🎧', name: 'Sony WH-1000XM4', spec: 'Наушники', tag: 'Аудио' },
+      { icon: '📱', name: 'Samsung Galaxy S7 Edge', spec: 'Exynos 8890', tag: 'Вторая мобила' },
+    ],
+    don: 'Поддержка',
+    footer: 'Built by Enqweezy',
+  }
+};
+
+let lang = localStorage.getItem('lang') || 'en';
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('lang', l);
+  const d = data[l];
+  document.getElementById('tagline').textContent = d.tagline;
+  document.getElementById('badge1').textContent = d.b1;
+  document.getElementById('badge2').textContent = d.b2;
+  document.getElementById('badge3').textContent = d.b3;
+  document.getElementById('t1').textContent = d.tabs[0];
+  document.getElementById('t2').textContent = d.tabs[1];
+  document.getElementById('t3').textContent = d.tabs[2];
+  document.getElementById('about-body').innerHTML = d.about.replace(/\n\n/g, '<br><br>');
+  ['s1','s2','s3','s4'].forEach((id,i) => document.getElementById(id).textContent = d.stats[i]);
+  const dg = document.getElementById('device-grid');
+  dg.innerHTML = d.devices.map(dv => `
+    <div class="device-card">
+      <span class="device-tag">${dv.tag}</span>
+      <span class="device-icon">${dv.icon}</span>
+      <div class="device-name">${dv.name}</div>
+      <div class="device-spec">${dv.spec}</div>
+    </div>`).join('');
+  document.getElementById('don-label').textContent = d.don;
+  document.getElementById('footer-text').textContent = d.footer;
+  document.querySelectorAll('.lang button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + l).classList.add('active');
+}
+
+/* ── TABS ── */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+  });
+});
+
+document.getElementById('btn-en').onclick = () => setLang('en');
+document.getElementById('btn-ru').onclick  = () => setLang('ru');
+
+setLang(lang);
+</script>
+</body>
+</html>
