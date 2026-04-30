@@ -842,3 +842,33 @@ setLang(lang);
 </script>
 </body>
 </html>
+/* ── MOBILE FIX ── */
+@media (max-width: 768px) {
+  .card {
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    gap: 18px;
+  }
+
+  .tabs {
+    justify-content: center;
+  }
+
+  .device-grid,
+  .socials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body {
+    cursor: auto;
+  }
+
+  #cursor, #cursor-ring {
+    display: none;
+  }
+}
